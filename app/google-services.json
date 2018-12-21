@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "447332405317",
+    "firebase_url": "https://bmifirebaseproject-6c2f0.firebaseio.com",
+    "project_id": "bmifirebaseproject-6c2f0",
+    "storage_bucket": "bmifirebaseproject-6c2f0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:447332405317:android:ae3ad78e08356674",
+        "android_client_info": {
+          "package_name": "com.example.acer.bmi"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "447332405317-eamvof6qi05s7ogvtbbvp3dv3o3brq19.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.acer.bmi",
+            "certificate_hash": "7b810570c7f5e513e128a580d216bd8e8b14f290"
+          }
+        },
+        {
+          "client_id": "447332405317-7a682ac3am47b8g8v8r7vavkr38rn3hh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCItXs7TdE1k44KPcqlp1V4n7dMDyliEZI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "447332405317-7a682ac3am47b8g8v8r7vavkr38rn3hh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
