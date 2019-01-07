@@ -66,7 +66,7 @@ public class MyDbHandler extends SQLiteOpenHelper {
                String bmi = c.getString(c.getColumnIndex("bmi"));
                 String date = c.getString(c.getColumnIndex("date"));
                 String name = c.getString(c.getColumnIndex("name"));
-                sb.append("name: "+name+"bmi: "+bmi+ "date: "+date+ "\n");
+                sb.append("name: "+name+" bmi: "+bmi+ " date: "+date+ "\n");
 
             }while (c.moveToNext());
         }

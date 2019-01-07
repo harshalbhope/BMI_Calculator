@@ -38,7 +38,7 @@ public class BmiResult extends AppCompatActivity {
         final String age = sp1.getString("age","");
         final String bmi = sp1.getString("bmi", "");
         final String phone = sp1.getString("phone","");
-//        final String sex = sp1.getString("sex","");
+        final String sex = sp1.getString("sex","");
 
 
         final String index;
@@ -70,7 +70,17 @@ public class BmiResult extends AppCompatActivity {
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(BmiResult.this, Binfo.class));
+                Intent launchNextActivity;
+                launchNextActivity = new Intent(BmiResult.this, Binfo.class);
+                launchNextActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                launchNextActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                launchNextActivity.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                startActivity(launchNextActivity);
+
+
+
+
+
             }
         });
 
@@ -81,7 +91,7 @@ public class BmiResult extends AppCompatActivity {
 
 
 
-                String msg = "Name: "+name+"/n Age: "+age+"/n Phone: "+phone+"Bmi: "+bmi+"/n "+index;
+                String msg = "Name: "+name+"/n Age: "+age+"/n Phone: "+phone+"/n Sex"+sex+"Bmi: "+bmi+"/n "+index;
                 Toast.makeText(BmiResult.this, msg, Toast.LENGTH_SHORT).show();
 
                 Intent intent = new Intent(Intent.ACTION_SEND);

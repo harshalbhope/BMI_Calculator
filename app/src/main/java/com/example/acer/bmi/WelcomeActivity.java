@@ -1,10 +1,14 @@
 package com.example.acer.bmi;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class WelcomeActivity extends AppCompatActivity {
 
@@ -28,11 +32,25 @@ public class WelcomeActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-                Intent i = new Intent(WelcomeActivity.this,MainActivity.class);
-                startActivity(i);
-                finish();
+                Intent launchNextActivity;
+                launchNextActivity = new Intent(WelcomeActivity.this,MainActivity.class);
+                launchNextActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                launchNextActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                launchNextActivity.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                startActivity(launchNextActivity);
+
+
+//                Intent i = new Intent(WelcomeActivity.this,MainActivity.class);
+//                startActivity(i);
+//                finish();
             }
         }).start();
 
+
+
+
     }
+
+
+
 }
