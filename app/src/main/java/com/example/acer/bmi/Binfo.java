@@ -10,6 +10,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
@@ -28,6 +29,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -47,11 +49,13 @@ public class Binfo extends AppCompatActivity {
     EditText etWeight;
     Spinner spFeet,spInch;
     Button btnCal,btnView;
+    int count = 0;
     SharedPreferences sp1;
 
     private static final int REQUEST_LOCATION = 1;
     LocationManager locationManager;
     String lattitude,longitude;
+    String OPEN_WEATHER_MAP_API = "e06358270ff36d40227b0dae53290a5b";
 
 
     @Override
@@ -116,9 +120,6 @@ public class Binfo extends AppCompatActivity {
 
 
                 editor.commit();
-
-
-
                 startActivity(new Intent(Binfo.this, BmiResult.class));
             }
         });
@@ -130,27 +131,29 @@ public class Binfo extends AppCompatActivity {
             }
         });
 
+
         ActivityCompat.requestPermissions(this, new String[]{ android.Manifest.permission.ACCESS_FINE_LOCATION }, REQUEST_LOCATION);
 
         tvLoc = (TextView)findViewById(R.id.tvLoc);
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             buildAlertMessageNoGps();
 
         } else if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             getLocation();
         }
-
-
     }
 
     private void getLocation() {
+
         if (ActivityCompat.checkSelfPermission(Binfo.this, android.Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission
                 (Binfo.this, android.Manifest.permission.ACCESS_COARSE_LOCATION ) != PackageManager.PERMISSION_GRANTED) {
 
             ActivityCompat.requestPermissions(Binfo.this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
+
 
         } else {
             Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
@@ -203,30 +206,18 @@ public class Binfo extends AppCompatActivity {
     public void getAddress(double lat, double lng) {
         Geocoder geocoder = new Geocoder(Binfo.this, Locale.getDefault());
         try {
+
             List<Address> addresses = geocoder.getFromLocation(lat, lng, 1);
             Address obj = addresses.get(0);
-//            String add = obj.getAddressLine(0);
-//            add = add + "\n" + obj.getAddressLine(1);
-//
-//            add = add + "\n" + obj.getCountryName();
-//            add = add + "\n" + obj.getCountryCode();
-//            add = add + "\n" + obj.getAdminArea();
-//            add = add + "\n" + obj.getPostalCode();
-//            add = add + "\n" + obj.getSubAdminArea();
-//            add = add + "\n" + obj.getLocality();
-//            add = add + "\n" + obj.getSubThoroughfare();
-//tvLoc.setText(add);
+            String add = obj.getLocality();
 
+            add = add + "," + obj.getPostalCode();
+            add = add + "," + obj.getAdminArea();
+            add = add + "," + obj.getCountryName()+".";
+            tvLoc.setText(add);
 
-//            Log.v("IGA", "Address" + add);
-            // Toast.makeText(this, "Address=>" + add,
-            // Toast.LENGTH_SHORT).show();
+            taskLoadUp(obj.getLocality().toString());
 
-
-
-            updateWeatherData(obj.getSubAdminArea());
-
-            // TennisAppActivity.showDialog(add);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -309,79 +300,80 @@ public class Binfo extends AppCompatActivity {
 
 
 
-    private void updateWeatherData(final String city){
-        new Thread(){
-            public void run(){
-                final JSONObject json = RemoteFetch.getJSON(Binfo.this, city);
-                Handler handler = null;
-                if(json == null){
-                    handler.post(new Runnable(){
-                        public void run(){
-                            Toast.makeText(Binfo.this, "Json Problem", Toast.LENGTH_SHORT).show();
-                        }
+    public void taskLoadUp(String query) {
+        if (Function.isNetworkAvailable(getApplicationContext())) {
+            DownloadWeather task = new DownloadWeather();
+            Log.d("city",query);
+            task.execute(query);
+        } else {
+            Toast.makeText(getApplicationContext(), "No Internet Connection", Toast.LENGTH_LONG).show();
+        }
+    }
 
-                    });
-                } else {
-                    handler.post(new Runnable(){
-                        public void run(){
-                            renderWeather(json);
-                        }
-                    });
+
+
+    class DownloadWeather extends AsyncTask< String, Void, String > {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+//            loader.setVisibility(View.VISIBLE);
+
+
+        }
+
+        protected String doInBackground(String...args) {
+            Log.d("arg[0]",args[0]);
+            String xml = Function.excuteGet("http://api.openweathermap.org/data/2.5/weather?q=" + args[0] +
+                    "&units=metric&appid=" + OPEN_WEATHER_MAP_API);
+//            Log.d("xml",xml);
+            return xml;
+        }
+
+        @Override
+        protected void onPostExecute(String xml) {
+            if (xml != null){
+            try {
+                JSONObject json = new JSONObject(xml);
+                if (json != null) {
+//                    JSONObject details = json.getJSONArray("weather").getJSONObject(0);
+                    JSONObject main = json.getJSONObject("main");
+//                    DateFormat df = DateFormat.getDateTimeInstance();
+
+//                    cityField.setText(json.getString("name").toUpperCase(Locale.US) + ", " + json.getJSONObject("sys").getString("country"));
+//                    detailsField.setText(details.getString("description").toUpperCase(Locale.US));
+                    String add = (String) tvLoc.getText();
+                    tvLoc.setText(add+" Temp:"+String.format("%.2f", main.getDouble("temp")) + "°");
+//                    humidity_field.setText("Humidity: " + main.getString("humidity") + "%");
+//                    pressure_field.setText("Pressure: " + main.getString("pressure") + " hPa");
+//                    updatedField.setText(df.format(new Date(json.getLong("dt") * 1000)));
+//                    weatherIcon.setText(Html.fromHtml(Function.setWeatherIcon(details.getInt("id"),
+//                            json.getJSONObject("sys").getLong("sunrise") * 1000,
+//                            json.getJSONObject("sys").getLong("sunset") * 1000)));
+
+//                    loader.setVisibility(View.GONE);
+
                 }
-            }
-        }.start();
-    }
-
-    private void renderWeather(JSONObject json){
-        try {
-
-            JSONObject main = json.getJSONObject("main");
-            tvLoc.setText(
-                    String.format("%.2f", main.getDouble("temp"))+ " ℃");
-
-        }catch(Exception e){
-            Log.e("SimpleWeather", "One or more fields not found in the JSON data");
-        }
-    }
-
-
-
-}
-public class RemoteFetch {
-
-    private static final String OPEN_WEATHER_MAP_API =
-            "http://api.openweathermap.org/data/2.5/weather?q=%s&units=metric";
-
-    @Nullable
-    public static JSONObject getJSON(Context context, String city){
-        try {
-            URL url = new URL(String.format(OPEN_WEATHER_MAP_API, city));
-            HttpURLConnection connection =
-                    (HttpURLConnection)url.openConnection();
-
-            connection.addRequestProperty("e06358270ff36d40227b0dae53290a5b",
-                    context.getString(R.string.open_weather_maps_app_id));
-
-            BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(connection.getInputStream()));
-
-            StringBuffer json = new StringBuffer(1024);
-            String tmp="";
-            while((tmp=reader.readLine())!=null)
-                json.append(tmp).append("\n");
-            reader.close();
-
-            JSONObject data = new JSONObject(json.toString());
-
-            // This value will be 404 if the request was not
-            // successful
-            if(data.getInt("cod") != 200){
-                return null;
+            } catch (JSONException e) {
+                Toast.makeText(getApplicationContext(), "Error, Check City", Toast.LENGTH_SHORT).show();
             }
 
-            return data;
-        }catch(Exception e){
-            return null;
+
+        }else {
+                Toast.makeText(Binfo.this, "xml error", Toast.LENGTH_SHORT).show();
+            }
+
         }
+
+
+
     }
+
+
+
+
+
+
+
+
+
 }

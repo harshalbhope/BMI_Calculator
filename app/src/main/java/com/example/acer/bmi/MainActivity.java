@@ -47,16 +47,16 @@ public class MainActivity extends AppCompatActivity {
 
         sp1 = getSharedPreferences("Myp1",MODE_PRIVATE);
 
-        String FirstTime = sp1.getString("FirstTimeInstall","");
+        String FirstTime = sp1.getString("n","");
 
-        if (FirstTime.equals("Yes")){
+        if (!FirstTime.isEmpty()){
             startActivity(new Intent(MainActivity.this, Binfo.class));
         }
-            else {
-            SharedPreferences.Editor editor = sp1.edit();
-            editor.putString("FirstTimeInstall","Yes");
-            editor.apply();
-        }
+//            else {
+//            SharedPreferences.Editor editor = sp1.edit();
+//            editor.putString("FirstTimeInstall","Yes");
+//            editor.apply();
+//        }
 
 
 
@@ -173,5 +173,25 @@ public class MainActivity extends AppCompatActivity {
 
 
         return super.onOptionsItemSelected(item);
+    }
+
+
+
+    @Override
+    public void onBackPressed() {
+        new AlertDialog.Builder(this).setIcon(android.R.drawable.ic_dialog_alert).setTitle("Exit")
+                .setMessage("Are you sure?")
+                .setPositiveButton("yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        Intent intent = new Intent(Intent.ACTION_MAIN);
+                        intent.addCategory(Intent.CATEGORY_HOME);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent);
+                        finish();
+                        System.exit(0);
+                    }
+                }).setNegativeButton("no", null).show();
     }
 }
